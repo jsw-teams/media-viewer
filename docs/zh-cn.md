@@ -4,13 +4,13 @@ Media viewer 提供视频播放器、混合附件画廊和可关闭的图片放�
 
 ![手机播放器](player-mobile.png)
 
-手机进度条独立一行，播放、时间、静音、设置和全屏在下一行。图片支持滚轮／双指缩放、拖动、重置，叉号与 Escape 关闭后返回原页面。可提供原图地址，或直接放大当前图片。
+手机进度条独立一行，当前时间与总时长单独显示，播放、静音、设置和全屏在下方操作栏。布局按播放器容器宽度适配。图片支持滚轮／双指缩放与拖动，叉号与 Escape 关闭后返回原页面。可提供原图地址，或直接放大当前图片；原图加载时显示加载状态，不在弹窗中展示优化图。
 
 ## 接入
 
 运行 `npm ci`、`npm run build`，用静态服务器打开 `/demo/`。构建生成 `dist/` 的 ES 模块与 CSS，可放在自己的站点并使用内容哈希缓存。打包工具可按主 README 从 GitHub 源码安装；目前没有发布 npm 包。
 
-- `mountVideo(video, {source, type})`：`source` 是返回视频地址的函数；HLS 用 `type: 'hls'`，浏览器支持的 MP4/WebM 用 `type: 'native'`。
+- `mountVideo(video, {source, type})`：`source` 是返回视频地址的函数；HLS 用 `type: 'hls'`，浏览器支持的 MP4/WebM 用 `type: 'native'`。`poster` 使用应用提供的封面；`data-duration` 提供秒数，在播放前显示总时长，播放后以实际视频元数据为准。
 - `mountImage(image, {original, labels})`：`original` 是 URL 或返回 URL 的函数，只在打开查看器时求值。未提供时使用 `data-original` 或当前图片。
 - `watchImage(image, {labels})`：仅增加失败占位和手动重试，用于仍需要导航到详情页的图片卡片。
 - `mountGallery(root, {mountVideo, labels, onChange})`：结构参考演示，以 `<template>` 保存未选附件，注入动态导入的视频组件。`onChange({index,stage})` 可更新画面外的操作栏。
