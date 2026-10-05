@@ -24,6 +24,14 @@
 .media-player.plyr .plyr__progress input[type=range]{min-height:32px}
 .media-player.plyr .plyr__volume input[type=range]{width:65px}
 .media-player.plyr .plyr__menu__container{max-width:calc(100vw - 32px)}
+.media-player.plyr .plyr__menu__container .plyr__control{justify-content:flex-start;gap:0}
+.media-player.plyr .plyr__menu__container .plyr__control[role=menuitemradio]{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:12px;padding:10px 12px;text-align:start}
+.media-player.plyr .plyr__menu__container .plyr__control[role=menuitemradio]::before{grid-column:1;grid-row:1;margin:0;width:16px;height:16px}
+.media-player.plyr .plyr__menu__container .plyr__control[role=menuitemradio]>span{grid-column:2;grid-row:1;width:auto;min-width:0}
+.media-player.plyr .plyr__menu__container .plyr__control[role=menuitemradio]::after{left:auto;right:auto;inset-inline-start:17px}
+.media-player.plyr .plyr__menu__container .plyr__control--back{padding-inline-start:36px}
+.media-player.plyr .plyr__menu__container .plyr__control--forward{padding-inline-end:36px}
+.media-player.plyr .plyr__menu__container [role=menu]{max-height:min(360px,calc(100dvh - 160px));overflow-y:auto;overscroll-behavior:contain}
 .media-player.plyr:fullscreen,.media-player.plyr.plyr--fullscreen-fallback{height:100%;max-height:none;aspect-ratio:auto;border-radius:0}
 .media-player.plyr:fullscreen .plyr__video-wrapper,.media-player.plyr.plyr--fullscreen-fallback .plyr__video-wrapper{height:100%;max-height:none;aspect-ratio:auto}
 .media-player.plyr:fullscreen video,.media-player.plyr.plyr--fullscreen-fallback video{height:100%;max-height:none}

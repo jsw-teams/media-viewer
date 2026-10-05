@@ -6,6 +6,7 @@
 - Image sources and lazy loading are supplied by the integrating app. Do not replace an explicit original with an optimized preview. The lightbox loads and displays only its requested original, including when the trigger image has not loaded yet. The close and save controls belong in the lightbox toolbar, outside the picture. All pictures follow the caller's consent and CSP without provider categories.
 - Support touch, focused keyboard control, visible loading/error states, English and both Chinese locales. Preserve native reduced-motion behavior without weakening ordinary feedback.
 - Verify controls are clickable at 320 px and desktop sizes, including menus and fullscreen. Keep mobile progress on its own row.
+- Reserve separate geometry for speed-radio markers and labels, even under host button styles. Keep image toolbar/status outside the photo; observe the actual frame size and fit all image edges before zooming.
 - Tests are local browser fixtures, never production uploads. Keep unrelated workspace changes intact.
 
 - Size controls using the player container, not only the viewport. The seek range must fill its row, current and total duration remain visible, and optional supplied duration/poster are displayed before playback without fetching video segments.

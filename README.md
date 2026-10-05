@@ -8,6 +8,7 @@ Reusable image lightboxes, mixed galleries and adaptive video players built with
 - Zoom, wheel/pinch, pan and reset; original saving lives in the lightbox toolbar, outside the picture.
 - Opens content images, subject to your application's consent and CSP.
 - Local icons, no CDN, no telemetry or persisted preferences; keyboard, touch and English / both Chinese locales.
+- Speed menus reserve separate space for the selection marker and number. The image viewer keeps its toolbar and loading status outside the picture, fits the full frame and readjusts when the available viewport changes.
 
 [中文说明](docs/zh-cn.md) | [Used by ishare](https://ishare.js.gripe)
 

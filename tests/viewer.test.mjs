@@ -17,7 +17,12 @@ test('responsive controls remain clickable and images request originals only ins
   await page.locator('.plyr__control--overlaid').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>.1);await page.locator('video').evaluate(video=>video.pause());
   await page.locator('[data-plyr=mute]').click();assert.equal(await page.locator('video').evaluate(video=>video.muted),true);
   await page.locator('.media-player').focus();await page.keyboard.press('k');await page.waitForFunction(()=>document.querySelector('video').currentTime>.1);await page.keyboard.press('k');assert.equal(await page.locator('video').evaluate(video=>video.paused),true);assert.equal(videoCalls,1);
-  await page.locator('[data-plyr=settings]').first().click();await page.locator('.plyr__menu__container:not([hidden])').waitFor();await page.keyboard.press('Escape');
+  await page.locator('[data-plyr=settings]').first().click();await page.locator('.plyr__menu__container:not([hidden])').waitFor();
+  await page.locator('.plyr__control--forward').click();await page.locator('[role=menuitemradio][value="2"]').click();
+  if(await page.locator('[data-plyr=settings]').first().getAttribute('aria-expanded')!=='true')await page.locator('[data-plyr=settings]').first().click();if(await page.locator('.plyr__control--forward').isVisible())await page.locator('.plyr__control--forward').click();
+  const selected=page.locator('[role=menuitemradio][value="2"]');await selected.waitFor({state:'visible'});assert.equal(await selected.getAttribute('aria-checked'),'true');
+  const marker=await selected.evaluate(node=>{const label=node.querySelector('span').getBoundingClientRect(),box=node.getBoundingClientRect(),style=getComputedStyle(node,'::after');return {label:label.x,left:box.x+parseFloat(style.left),width:parseFloat(style.width)};});assert.ok(marker.left+marker.width+8<=marker.label,'Selected speed marker must not overlap the number: '+JSON.stringify(marker));
+  await page.keyboard.press('Escape');
   await page.locator('[data-plyr=fullscreen]').click();await page.waitForFunction(()=>!!document.fullscreenElement||document.querySelector('.plyr--fullscreen-fallback'));await page.locator('[data-plyr=fullscreen]').click();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await page.screenshot({path:'.artifacts/player-'+width+'.png'});
   await page.locator('[data-next]').click();assert.equal(await page.locator('.plyr').count(),0);await page.waitForFunction(()=>document.querySelector('img[data-media]').naturalWidth>0);await page.locator('img[data-media]').evaluate(image=>{image.dataset.original='https://images.example/original.svg';});assert.equal(originalCalls,0);
