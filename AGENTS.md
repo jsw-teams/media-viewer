@@ -9,3 +9,4 @@
 - Tests are local browser fixtures, never production uploads. Keep unrelated workspace changes intact.
 
 - Size controls using the player container, not only the viewport. The seek range must fill its row, current and total duration remain visible, and optional supplied duration/poster are displayed before playback without fetching video segments.
+- Follow page theme variables rather than a fixed brand color. Account for playback rate in bounded forward buffering and sustainable ABR bandwidth; retain on-demand loading, pause/disposal cancellation and automatic detail upgrades. Check real HLS playback with constrained local fixtures, not only native-video mocks.

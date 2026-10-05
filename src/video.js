@@ -25,18 +25,30 @@ export function mountVideo(video,{labels={},i18n=playerLanguage(document.documen
  }
  function prepare(){
   if(disposed||failed)return;wantsPlay=true;
-  if(hls){hls.startLoad();return;}
+  if(hls){resumeLoad();return;}
   if(video.hasAttribute('src'))return;
   if(type==='native'||video.canPlayType('application/vnd.apple.mpegurl'))video.src=source();
   else if(Hls.isSupported()){
-   hls=new Hls({autoStartLoad:false,capLevelToPlayerSize:true,maxDevicePixelRatio:2,maxBufferLength:12,maxMaxBufferLength:24,backBufferLength:15});
-   hls.on(Hls.Events.MANIFEST_PARSED,()=>{if(wantsPlay&&!disposed)hls?.startLoad();});
+   // Start with a playable small rendition, then let ABR choose sustainable detail.
+   hls=new Hls({autoStartLoad:false,startLevel:0,capLevelToPlayerSize:true,capLevelOnFPSDrop:true,maxDevicePixelRatio:2,maxBufferLength:30,maxMaxBufferLength:30,backBufferLength:10});
+   tunePlayback();
+   hls.on(Hls.Events.MANIFEST_PARSED,()=>{if(wantsPlay&&!disposed)resumeLoad();});
    hls.on(Hls.Events.ERROR,(_event,data)=>{if(data.fatal){const status=data.response?.code||data.networkDetails?.status;fail([404,410].includes(status)?'mediaMissing':'videoUnavailable');}});
    hls.loadSource(source());hls.attachMedia(video);
   }else fail('videoUnsupported');
  }
+ function resumeLoad(){if(hls&&!hls.loadingEnabled)hls.startLoad();}
+ function tunePlayback(){
+  if(!hls)return;
+  const rate=Math.max(1,Math.abs(video.playbackRate)||1),ahead=Math.min(90,30*rate);
+  // Buffer seconds are media time; ABR bandwidth is bytes per wall-clock second.
+  hls.config.maxBufferLength=hls.config.maxMaxBufferLength=ahead;
+  hls.config.abrBandWidthFactor=Hls.DefaultConfig.abrBandWidthFactor/rate;
+  hls.config.abrBandWidthUpFactor=Hls.DefaultConfig.abrBandWidthUpFactor/rate;
+ }
+ video.addEventListener('ratechange',tunePlayback,{signal:controller.signal});
  container.addEventListener('keydown',event=>{if([' ','k','K'].includes(event.key)&&video.paused&&event.target.tagName!=='INPUT')prepare();},{capture:true,signal:controller.signal});
- video.addEventListener('play',()=>{wantsPlay=true;hls?.startLoad();},{signal:controller.signal});
+ video.addEventListener('play',()=>{wantsPlay=true;resumeLoad();},{signal:controller.signal});
  video.addEventListener('pause',()=>{wantsPlay=false;hls?.stopLoad();},{signal:controller.signal});
  const updateDuration=()=>{if(player.config.duration!==null&&Number.isFinite(video.duration)&&video.duration>0){player.config.duration=null;refreshDuration();}};
  video.addEventListener('durationchange',updateDuration,{signal:controller.signal});
