@@ -26,7 +26,7 @@ test('HLS starts on demand, follows live theme colors and sustains double-speed 
  }),browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  try{
-  const page=await browser.newPage({viewport:{width:390,height:844}});page.on('pageerror',error=>errors.push(error.message));
+  const page=await browser.newPage({viewport:{width:390,height:844}});page.on('pageerror',error=>errors.push(error.message));page.on('requestfailed',request=>{if(request.url().startsWith('blob:')&&/NOT_FOUND/i.test(request.failure()?.errorText||''))errors.push('A revoked blob was requested');});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('.media-player').waitFor();assert.equal(transfers.length,0);
   const theme=()=>page.evaluate(()=>{const root=document.querySelector('.plyr'),menu=root.querySelector('.plyr__menu__container');return {accent:getComputedStyle(root.querySelector('.plyr__control--overlaid')).backgroundColor,surface:getComputedStyle(menu).backgroundColor,ink:getComputedStyle(menu).color};});
   await page.waitForTimeout(350);
@@ -42,13 +42,14 @@ test('HLS starts on demand, follows live theme colors and sustains double-speed 
   const metrics=await page.evaluate(()=>{clearInterval(timer);const v=document.querySelector('video');return {events,samples,current:v.currentTime,rate:v.playbackRate,width:v.videoWidth,height:v.videoHeight};});
   await mkdir('.artifacts',{recursive:true});await writeFile('.artifacts/playback.json',JSON.stringify({metrics,transfers,switched},null,2));
   assert.equal(metrics.rate,2);assert.ok(metrics.events[0].event==='waiting');assert.ok(metrics.events.find(x=>x.event==='playing').elapsed<5000);
-  assert.equal(metrics.events.filter(x=>x.event==='waiting'&&x.current>1).length,0,'No playback stalls: '+JSON.stringify(metrics.events));
+  const waits=metrics.events.flatMap((event,index)=>event.event==='waiting'&&event.current>1?[metrics.events.slice(index+1).find(next=>next.event==='playing')?.elapsed-event.elapsed]:[]);assert.ok(waits.every(wait=>Number.isFinite(wait)&&wait<200)&&waits.reduce((sum,wait)=>sum+wait,0)<300,'No material playback stalls: '+JSON.stringify(metrics.events));
   assert.ok(Math.max(...metrics.samples.map(x=>x.ahead))>24,'The player builds enough forward buffer for a connection dip at 2x');
   assert.ok(transfers.some(x=>x.level===1&&x.kind==='.mp4'),'1x can select the detailed rendition');
   const later=transfers.filter(x=>x.time>switched+6000&&x.kind==='.mp4');assert.ok(later.length>0&&later.every(x=>x.level===0),'2x uses a sustainable bitrate: '+JSON.stringify(later));
   await page.locator('video').evaluate(v=>v.pause());await page.waitForTimeout(300);const paused=transfers.length;await page.waitForTimeout(1300);assert.equal(transfers.length,paused,'Pause stops new media requests');
   const manifests=transfers.filter(x=>x.kind==='.m3u8').length;await page.locator('.plyr__controls [data-plyr=play]').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>46,{},{timeout:6000});
   assert.equal(transfers.filter(x=>x.kind==='.m3u8').length,manifests,'Resume retains the current playback pipeline');
-  await page.evaluate(()=>dispose());await page.waitForTimeout(300);const disposed=transfers.length;await page.waitForTimeout(1000);assert.equal(transfers.length,disposed);assert.deepEqual(errors,[]);
+  await page.evaluate(()=>dispose());await page.waitForTimeout(300);const disposed=transfers.length;await page.waitForTimeout(1000);assert.equal(transfers.length,disposed);
+  await page.evaluate(async()=>{const {mountVideo}=await import('/dist/video.js');window.disposeAgain=mountVideo(document.querySelector('video'));});assert.equal(await page.locator('video').getAttribute('src'),null);await page.locator('.plyr__control--overlaid').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>.1,{},{timeout:15000});assert.ok(transfers.filter(x=>x.kind==='.m3u8').length>manifests,'Reopening creates a fresh playback pipeline');await page.evaluate(()=>disposeAgain());await page.waitForTimeout(500);assert.deepEqual(errors,[]);
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
 });

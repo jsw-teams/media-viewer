@@ -5,7 +5,11 @@ export function playerLanguage(locale){
  return /^zh/i.test(locale)?simplified:{};
 }
 export function imageLanguage(locale){
- if(/^zh-(TW|HK|Hant)/i.test(locale))return {openImage:'放大圖片',closeImage:'關閉圖片',zoomIn:'放大',zoomOut:'縮小',saveOriginal:'儲存原圖',retryMedia:'重新載入',loading:'載入中…',imageUnavailable:'圖片已刪除或暫時無法載入。',videoUnavailable:'影片已刪除或暫時無法播放。',videoUnsupported:'此瀏覽器不支援影片播放。',mediaMissing:'此附件已不存在。',previousAttachment:'上一個附件',nextAttachment:'下一個附件',attachments:'附件'};
- if(/^zh/i.test(locale))return {openImage:'放大图片',closeImage:'关闭图片',zoomIn:'放大',zoomOut:'缩小',saveOriginal:'保存原图',retryMedia:'重新加载',loading:'加载中…',imageUnavailable:'图片已删除或暂时无法加载。',videoUnavailable:'视频已删除或暂时无法播放。',videoUnsupported:'此浏览器不支持视频播放。',mediaMissing:'此附件已不存在。',previousAttachment:'上一个附件',nextAttachment:'下一个附件',attachments:'附件'};
- return {openImage:'Enlarge image',closeImage:'Close image',zoomIn:'Zoom in',zoomOut:'Zoom out',saveOriginal:'Save original',retryMedia:'Retry loading',loading:'Loading…',imageUnavailable:'This image is unavailable.',videoUnavailable:'This video is unavailable.',videoUnsupported:'Video playback is not supported in this browser.',mediaMissing:'This attachment is no longer available.',previousAttachment:'Previous attachment',nextAttachment:'Next attachment',attachments:'Attachments'};
+ const instructions=/^zh-(TW|HK|Hant)/i.test(locale)?'點擊或滾輪縮放，雙指縮放，拖曳移動。鍵盤 +、- 縮放，0 重設，方向鍵移動，Escape 關閉。':/^zh/i.test(locale)?'点击或滚轮缩放，双指缩放，拖动移动。键盘 +、- 缩放，0 重置，方向键移动，Escape 关闭。':'Click or scroll to zoom; pinch and drag to move. Keyboard: + and - zoom, 0 resets, arrows pan, Escape closes.';
+ const result=imageLabels(locale);return {...result,imageInstructions:instructions};
+}
+function imageLabels(locale){
+ if(/^zh-(TW|HK|Hant)/i.test(locale))return {openImage:'放大圖片',closeImage:'關閉圖片',retryMedia:'重新載入',loading:'載入中…',imageUnavailable:'圖片已刪除或暫時無法載入。',videoUnavailable:'影片已刪除或暫時無法播放。',videoUnsupported:'此瀏覽器不支援影片播放。',mediaMissing:'此附件已不存在。',previousAttachment:'上一個附件',nextAttachment:'下一個附件',attachments:'附件'};
+ if(/^zh/i.test(locale))return {openImage:'放大图片',closeImage:'关闭图片',retryMedia:'重新加载',loading:'加载中…',imageUnavailable:'图片已删除或暂时无法加载。',videoUnavailable:'视频已删除或暂时无法播放。',videoUnsupported:'此浏览器不支持视频播放。',mediaMissing:'此附件已不存在。',previousAttachment:'上一个附件',nextAttachment:'下一个附件',attachments:'附件'};
+ return {openImage:'Enlarge image',closeImage:'Close image',retryMedia:'Retry loading',loading:'Loading…',imageUnavailable:'This image is unavailable.',videoUnavailable:'This video is unavailable.',videoUnsupported:'Video playback is not supported in this browser.',mediaMissing:'This attachment is no longer available.',previousAttachment:'Previous attachment',nextAttachment:'Next attachment',attachments:'Attachments'};
 }

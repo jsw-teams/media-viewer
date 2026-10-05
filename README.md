@@ -5,7 +5,7 @@ Reusable image lightboxes, mixed galleries and adaptive video players built with
 - Modern controls: full-width progress on its own row, adjacent current / total time, aligned seek and buffer tracks, large click targets and working settings/fullscreen. Controls adapt to the player container; actual metadata replaces the supplied duration on playback.
 - Video loads on play, starts with a small playable rendition and adapts to bandwidth, playback speed and player size. Bounded forward buffering grows with speed; pause and disposal stop new requests.
 - Click an optimized image to open a closable full-screen lightbox. Only then request its original.
-- Zoom, wheel/pinch, pan and reset; original saving lives in the lightbox toolbar, outside the picture.
+- A translucent image viewer with one close control outside the picture. Click, wheel or pinch to zoom; drag to pan. Keyboard + / - zoom, 0 resets and arrows pan. Save through the browser's image context menu.
 - Opens content images, subject to your application's consent and CSP.
 - Local icons, no CDN, no telemetry or persisted preferences; keyboard, touch and English / both Chinese locales.
 - Speed menus separate the selection marker and number, with themed up/down controls and a draggable scroll track. Wheel, touch and keyboard navigation still work. The image viewer keeps its toolbar and loading status outside the picture, fits the full frame and readjusts when the available viewport changes.
@@ -13,6 +13,10 @@ Reusable image lightboxes, mixed galleries and adaptive video players built with
 [中文说明](docs/zh-cn.md) | [Used by ishare](https://ishare.js.gripe)
 
 ![Mobile player](docs/player-mobile.png)
+
+![Real component demo: choosing playback speed and scrolling the options](docs/player-controls.gif)
+
+![Enlarged playback speed controls](docs/speed-menu-detail.png)
 
 ![Full-screen image viewer with controls outside the picture](docs/image-lightbox-mobile.png)
 

@@ -60,5 +60,5 @@ export function mountVideo(video,{labels={},i18n=playerLanguage(document.documen
  video.addEventListener('loadedmetadata',()=>{updateDuration();if(video.videoWidth&&video.videoHeight)container.style.setProperty('--media-aspect',video.videoWidth+'/'+video.videoHeight);},{signal:controller.signal});
  video.addEventListener('loadeddata',()=>{if(!failed&&!disposed)feedback.ready();},{signal:controller.signal});
  video.addEventListener('error',()=>fail(),{signal:controller.signal});
- return ()=>{disposed=true;controller.abort();menuSize.disconnect();disposeMenu();video.pause();hls?.destroy();hls=null;feedback.destroy();player.destroy(()=>URL.revokeObjectURL(blank));};
+ return ()=>{disposed=true;controller.abort();menuSize.disconnect();disposeMenu();video.pause();hls?.destroy();hls=null;feedback.destroy();if(!player.ready){URL.revokeObjectURL(blank);return;}player.destroy(()=>{let released=false;const release=()=>{if(released)return;released=true;clearTimeout(timer);video.removeEventListener('loadeddata',release);video.removeEventListener('error',release);video.removeAttribute('src');video.load();URL.revokeObjectURL(blank);};const timer=setTimeout(release,10000);video.addEventListener('loadeddata',release,{once:true});video.addEventListener('error',release,{once:true});});};
 }
