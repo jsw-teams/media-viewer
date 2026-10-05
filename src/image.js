@@ -1,8 +1,9 @@
 import {imageLanguage} from './language.js';
+import {imageIcons} from './image-icons.js';
 export function mediaFeedback(element,retry,labels={}){
  const dictionary={...imageLanguage(document.documentElement.lang),...labels},t=key=>dictionary[key]||key;
  const box=document.createElement('div'),icon=document.createElement('span'),message=document.createElement('p'),button=document.createElement('button');
- box.className='media-feedback';box.hidden=true;box.setAttribute('role','status');icon.className='media-feedback-icon';icon.textContent='!';icon.setAttribute('aria-hidden','true');button.type='button';button.textContent=t('retryMedia');box.append(icon,message,button);element.after(box);
+ box.className='media-feedback';box.hidden=true;box.setAttribute('role','status');icon.className='media-feedback-icon';icon.innerHTML=imageIcons.error;icon.setAttribute('aria-hidden','true');button.type='button';button.textContent=t('retryMedia');box.append(icon,message,button);element.after(box);
  button.addEventListener('click',()=>{button.disabled=true;message.textContent=t('loading');retry();});
  return {failed(key){element.hidden=true;element.setAttribute('aria-invalid','true');box.hidden=false;message.textContent=t(key);button.disabled=false;},ready(){element.hidden=false;element.removeAttribute('aria-invalid');box.hidden=true;button.disabled=false;},destroy(){box.remove();element.hidden=false;element.removeAttribute('aria-invalid');}};
 }
