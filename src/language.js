@@ -1,6 +1,7 @@
 export function playerLanguage(locale){
  const simplified={play:'播放',pause:'暂停',restart:'重新播放',seek:'进度',seekLabel:'{currentTime} / {duration}',played:'已播放',buffered:'已缓冲',currentTime:'当前时间',duration:'时长',volume:'音量',mute:'静音',unmute:'取消静音',enableCaptions:'开启字幕',disableCaptions:'关闭字幕',enterFullscreen:'全屏',exitFullscreen:'退出全屏',settings:'设置',pip:'画中画',menuBack:'返回',speed:'播放速度',normal:'正常',quality:'清晰度',loop:'循环',start:'开始',end:'结束',all:'全部',reset:'重置',disabled:'关闭',enabled:'开启',captions:'字幕'};
- if(/^zh-(TW|HK|Hant)/i.test(locale))return {...simplified,pause:'暫停',seek:'進度',buffered:'已緩衝',currentTime:'目前時間',duration:'時長',mute:'靜音',unmute:'取消靜音',enableCaptions:'開啟字幕',disableCaptions:'關閉字幕',enterFullscreen:'全螢幕',exitFullscreen:'退出全螢幕',settings:'設定',pip:'子母畫面',quality:'畫質',loop:'循環',start:'開始',end:'結束',reset:'重設',disabled:'關閉',enabled:'開啟'};
+ Object.assign(simplified,{menuScrollUp:'向上滚动倍速列表',menuScrollDown:'向下滚动倍速列表',menuScrollPosition:'倍速列表滚动位置'});
+ if(/^zh-(TW|HK|Hant)/i.test(locale))return {...simplified,menuScrollUp:'向上捲動倍速列表',menuScrollDown:'向下捲動倍速列表',menuScrollPosition:'倍速列表捲動位置',pause:'暫停',seek:'進度',buffered:'已緩衝',currentTime:'目前時間',duration:'時長',mute:'靜音',unmute:'取消靜音',enableCaptions:'開啟字幕',disableCaptions:'關閉字幕',enterFullscreen:'全螢幕',exitFullscreen:'退出全螢幕',settings:'設定',pip:'子母畫面',quality:'畫質',loop:'循環',start:'開始',end:'結束',reset:'重設',disabled:'關閉',enabled:'開啟'};
  return /^zh/i.test(locale)?simplified:{};
 }
 export function imageLanguage(locale){

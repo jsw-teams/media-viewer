@@ -7,6 +7,7 @@
 - Support touch, focused keyboard control, visible loading/error states, English and both Chinese locales. Preserve native reduced-motion behavior without weakening ordinary feedback.
 - Verify controls are clickable at 320 px and desktop sizes, including menus and fullscreen. Keep mobile progress on its own row.
 - Reserve separate geometry for speed-radio markers and labels, even under host button styles. Keep image toolbar/status outside the photo; observe the actual frame size and fit all image edges before zooming.
+- Overflowing speed menus use the component's themed up/down buttons and draggable scroll track. Keep options reachable by wheel, touch and keyboard, and verify the selected row is inside the visible scroll viewport.
 - Tests are local browser fixtures, never production uploads. Keep unrelated workspace changes intact.
 
 - Size controls using the player container, not only the viewport. The seek range must fill its row, current and total duration remain visible, and optional supplied duration/poster are displayed before playback without fetching video segments.
