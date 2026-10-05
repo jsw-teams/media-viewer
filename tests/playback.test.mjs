@@ -27,17 +27,16 @@ test('HLS starts on demand, follows live theme colors and sustains double-speed 
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  try{
   const page=await browser.newPage({viewport:{width:390,height:844}});page.on('pageerror',error=>errors.push(error.message));
-  // Exercise MSE even when the host browser also supports native HLS.
-  await page.addInitScript(()=>{const native=HTMLMediaElement.prototype.canPlayType;HTMLMediaElement.prototype.canPlayType=function(type){return /mpegurl/i.test(type)?'':native.call(this,type);};});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('.media-player').waitFor();assert.equal(transfers.length,0);
   const theme=()=>page.evaluate(()=>{const root=document.querySelector('.plyr'),menu=root.querySelector('.plyr__menu__container');return {accent:getComputedStyle(root.querySelector('.plyr__control--overlaid')).backgroundColor,surface:getComputedStyle(menu).backgroundColor,ink:getComputedStyle(menu).color};});
   await page.waitForTimeout(350);
   assert.deepEqual(await theme(),{accent:'rgb(96, 64, 190)',surface:'rgb(250, 249, 255)',ink:'rgb(32, 23, 44)'});
-  await page.evaluate(()=>{const s=document.documentElement.style;s.setProperty('--accent','#367bd6');s.setProperty('--paper','#191b24');s.setProperty('--ink','#f0f2fa');});
+  await page.evaluate(()=>{const s=document.documentElement.style;s.setProperty('--accent','#367bd6');s.setProperty('--surface','#191b24');s.setProperty('--bg','#10121b');s.setProperty('--ink','#f0f2fa');});
   await page.waitForTimeout(350);
   assert.deepEqual(await theme(),{accent:'rgb(54, 123, 214)',surface:'rgb(25, 27, 36)',ink:'rgb(240, 242, 250)'});
   await page.locator('video').evaluate(v=>{window.samples=[];window.events=[];window.start=performance.now();for(const event of ['playing','waiting','ended'])v.addEventListener(event,()=>events.push({event,elapsed:performance.now()-start,current:v.currentTime}));window.timer=setInterval(()=>samples.push({time:performance.now()-start,current:v.currentTime,ahead:v.buffered.length?v.buffered.end(v.buffered.length-1)-v.currentTime:0}),200);});
   await page.locator('.plyr__control--overlaid').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>8,{},{timeout:20000});
+  assert.ok(await page.locator('video').evaluate(v=>v.getAttribute('src').startsWith('blob:')),'Use managed HLS when MSE is supported, including browsers that advertise native HLS');
   const switched=Date.now();chunkSize=3500;await page.locator('video').evaluate(v=>{v.plyr.speed=2;});
   await page.waitForFunction(()=>document.querySelector('video').currentTime>42,{},{timeout:25000});
   const metrics=await page.evaluate(()=>{clearInterval(timer);const v=document.querySelector('video');return {events,samples,current:v.currentTime,rate:v.playbackRate,width:v.videoWidth,height:v.videoHeight};});

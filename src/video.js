@@ -27,7 +27,7 @@ export function mountVideo(video,{labels={},i18n=playerLanguage(document.documen
   if(disposed||failed)return;wantsPlay=true;
   if(hls){resumeLoad();return;}
   if(video.hasAttribute('src'))return;
-  if(type==='native'||video.canPlayType('application/vnd.apple.mpegurl'))video.src=source();
+  if(type==='native')video.src=source();
   else if(Hls.isSupported()){
    // Start with a playable small rendition, then let ABR choose sustainable detail.
    hls=new Hls({autoStartLoad:false,startLevel:0,capLevelToPlayerSize:true,capLevelOnFPSDrop:true,maxDevicePixelRatio:2,maxBufferLength:30,maxMaxBufferLength:30,backBufferLength:10});
@@ -35,7 +35,8 @@ export function mountVideo(video,{labels={},i18n=playerLanguage(document.documen
    hls.on(Hls.Events.MANIFEST_PARSED,()=>{if(wantsPlay&&!disposed)resumeLoad();});
    hls.on(Hls.Events.ERROR,(_event,data)=>{if(data.fatal){const status=data.response?.code||data.networkDetails?.status;fail([404,410].includes(status)?'mediaMissing':'videoUnavailable');}});
    hls.loadSource(source());hls.attachMedia(video);
-  }else fail('videoUnsupported');
+  }else if(video.canPlayType('application/vnd.apple.mpegurl'))video.src=source();
+  else fail('videoUnsupported');
  }
  function resumeLoad(){if(hls&&!hls.loadingEnabled)hls.startLoad();}
  function tunePlayback(){
