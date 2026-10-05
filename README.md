@@ -13,6 +13,10 @@ Reusable image lightboxes, mixed galleries and adaptive video players built with
 
 ![Mobile player](docs/player-mobile.png)
 
+![Full-screen image viewer with controls outside the picture](docs/image-lightbox-mobile.png)
+
+These screenshots show the local component demo. The player uses a purple page accent; its controls also follow live light/dark theme changes.
+
 ## Build and try
 
 ```sh
@@ -51,7 +55,7 @@ Call the disposers before removing the elements. Videos use `playsinline`, `prel
 
 The player inherits the page's `--accent`, `--surface` (or `--paper`), `--ink`, `--bg` and `--line` CSS variables, including live light/dark theme changes. For another theme system, map its colors to `--media-accent`, `--media-surface`, `--media-ink` and `--media-accent-ink` on the player or an ancestor. These affect the playback accent, accent foreground and settings menu without recoloring the video itself. HLS uses hls.js when Media Source Extensions are supported, with native HLS as a fallback; explicit `type: 'native'` retains browser playback for MP4/WebM.
 
-Images retain your `srcset` and `sizes`. The component does not resize files, transcode media, authenticate users or implement uploads/storage/signing. Third-party viewing is direct browser image loading, not an arbitrary backend proxy; initialize it only for content your visitor has authorized. CSP must permit the configured image/media hosts, local scripts/styles and playback `blob:`. Icons are bundled once per document, and cancellation uses a local Blob rather than an external blank-video host.
+Images retain your `srcset` and `sizes`. The component does not resize files, transcode media, authenticate users or implement uploads/storage/signing. Image viewing uses direct browser loading; initialize it only for content your visitor has authorized. CSP must permit the configured image/media hosts, local scripts/styles and playback `blob:`. Icons are bundled once per document, and cancellation uses a local Blob rather than an external blank-video host.
 
 ## Test and license
 
