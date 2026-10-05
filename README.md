@@ -2,7 +2,7 @@
 
 Reusable image lightboxes, mixed galleries and adaptive video players built with Plyr and hls.js. The component runs entirely in the browser.
 
-- Modern mobile controls: progress on its own row, large click targets and working settings/fullscreen.
+- Modern mobile controls: full-width progress on its own row, visible current/total time, large click targets and working settings/fullscreen. Controls adapt to the player container.
 - Video loads on play, adapts to bandwidth and player size, and stops requests on pause or disposal.
 - Click an optimized image to open a closable full-screen lightbox. Only then request its original.
 - Zoom, wheel/pinch, pan and reset; original saving lives in the lightbox toolbar, outside the picture.
@@ -45,7 +45,7 @@ const disposeImage = mountImage(document.querySelector('img'), {
 });
 ```
 
-Call the disposers before removing the elements. Videos use `playsinline`, `preload="none"` and a server-provided poster. `source` accepts a function; `original` accepts a URL or function and is evaluated on click. Without `original`, the lightbox uses `data-original`, then the currently displayed image.
+Call the disposers before removing the elements. Videos use `playsinline`, `preload="none"` and a server-provided poster. Supply `data-duration` in seconds to show the known total before playback; actual metadata replaces it on play. `source` accepts a function; `original` accepts a URL or function and is evaluated on click. Without `original`, the lightbox uses `data-original`, then the currently displayed image. While loading the original, the dialog shows a loading status rather than an optimized preview.
 
 `watchImage(image, {labels})` adds error/retry feedback without opening a lightbox. `mountGallery(root, {mountVideo, labels, onChange})` consumes the markup in `demo/index.html` and `<template>` slides. Inject a lazy video mount function to avoid loading video JavaScript on image-only pages. `onChange({index,stage})` can update external application controls. Custom `labels` and Plyr `i18n` dictionaries extend or override translations.
 
