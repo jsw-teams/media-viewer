@@ -1,0 +1,37 @@
+import {watchImage,mediaFeedback} from './image.js';
+import {imageLanguage} from './language.js';
+
+export function mountImage(image,{labels={},original=()=>image.dataset.original||image.currentSrc||image.src}={}){
+ const text={...imageLanguage(document.documentElement.lang),...labels},controller=new AbortController(),{signal}=controller;
+ const previousAttributes=Object.fromEntries(['tabindex','role','aria-label'].map(name=>[name,image.getAttribute(name)])),feedbackImage=watchImage(image,{labels:text});image.classList.add('image-zoomable');image.tabIndex=0;image.setAttribute('role','button');image.setAttribute('aria-label',text.openImage+': '+image.alt);
+ let close=()=>{};
+ function open(){
+  if(!image.naturalWidth)return;
+  let source;try{source=new URL(typeof original==='function'?original():original,location.href);if(!['http:','https:','blob:','data:'].includes(source.protocol))return;}catch{return;}
+  close();const modal=document.createElement('dialog'),toolbar=document.createElement('div'),title=document.createElement('span'),frame=document.createElement('div'),status=document.createElement('span'),preview=image.cloneNode();
+  const events=new AbortController(),pointers=new Map();let scale=1,x=0,y=0,distance=0,closed=false;
+  modal.className='image-lightbox';modal.setAttribute('aria-label',image.alt||text.openImage);toolbar.className='image-lightbox-toolbar';title.className='image-lightbox-title';title.textContent=image.alt;frame.className='image-lightbox-frame';status.className='image-lightbox-status';status.textContent=text.loading;status.setAttribute('role','status');
+  preview.removeAttribute('srcset');preview.removeAttribute('sizes');preview.removeAttribute('role');preview.removeAttribute('tabindex');preview.className='image-lightbox-photo';preview.src=image.currentSrc||image.src;preview.draggable=false;
+  const button=(symbol,label,action)=>{const node=document.createElement('button');node.type='button';node.textContent=symbol;node.setAttribute('aria-label',label);node.title=label;node.addEventListener('click',action,{signal:events.signal});toolbar.append(node);return node;};
+  toolbar.append(title);button('−',text.zoomOut,()=>zoom(scale/1.4));button('+',text.zoomIn,()=>zoom(scale*1.4));button('↺',text.resetZoom,()=>{scale=1;x=y=0;update();});
+  const save=document.createElement('a');save.href=source.href;save.download=image.alt||'image';save.textContent='↓';save.className='image-lightbox-save';save.setAttribute('aria-label',text.saveOriginal);save.title=text.saveOriginal;if(source.origin!==location.origin){save.target='_blank';save.rel='noopener noreferrer';}toolbar.append(save);const dismiss=button('×',text.closeImage,()=>{modal.close();cleanup();});
+  frame.append(preview);modal.append(toolbar,frame,status);document.body.append(modal);const previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';modal.showModal();dismiss.focus();
+  const full=new Image();full.alt=image.alt;full.className='image-lightbox-photo image-lightbox-original';full.draggable=false;frame.append(full);
+  const feedback=mediaFeedback(full,()=>{status.hidden=false;full.removeAttribute('src');full.src=source.href;},text);
+  full.addEventListener('load',()=>{if(closed)return;preview.remove();full.classList.remove('image-lightbox-original');status.hidden=true;feedback.ready();update();},{signal:events.signal});
+  full.addEventListener('error',()=>{if(closed)return;status.hidden=true;feedback.failed('imageUnavailable');},{signal:events.signal});
+  if(source.href===(image.currentSrc||image.src)){preview.remove();status.hidden=true;}full.src=source.href;
+  function update(){if(scale===1)x=y=0;const ratio=(full.naturalWidth||image.naturalWidth)/(full.naturalHeight||image.naturalHeight),width=Math.min(frame.clientWidth,frame.clientHeight*ratio),height=width/ratio,maxX=Math.max(0,(width*scale-frame.clientWidth)/2),maxY=Math.max(0,(height*scale-frame.clientHeight)/2);x=Math.max(-maxX,Math.min(maxX,x));y=Math.max(-maxY,Math.min(maxY,y));for(const photo of frame.querySelectorAll('.image-lightbox-photo'))photo.style.transform=`translate(${x}px,${y}px) scale(${scale})`;frame.classList.toggle('is-zoomed',scale>1);}
+  function zoom(value){scale=Math.max(1,Math.min(6,value));update();}
+  frame.addEventListener('dblclick',()=>zoom(scale===1?2:1),{signal:events.signal});
+  frame.addEventListener('wheel',event=>{event.preventDefault();zoom(scale*(event.deltaY<0?1.15:1/1.15));},{passive:false,signal:events.signal});
+  frame.addEventListener('pointerdown',event=>{if(event.target.closest('button'))return;pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});frame.setPointerCapture(event.pointerId);distance=0;},{signal:events.signal});
+  frame.addEventListener('pointermove',event=>{const previous=pointers.get(event.pointerId);if(!previous)return;pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});if(pointers.size===2){const [a,b]=[...pointers.values()],current=Math.hypot(a.x-b.x,a.y-b.y);if(distance)zoom(scale*current/distance);distance=current;}else if(scale>1){x+=event.clientX-previous.x;y+=event.clientY-previous.y;update();}},{signal:events.signal});
+  for(const name of ['pointerup','pointercancel'])frame.addEventListener(name,event=>{pointers.delete(event.pointerId);distance=0;},{signal:events.signal});
+  const cleanup=()=>{if(closed)return;closed=true;events.abort();full.removeAttribute('src');modal.remove();document.body.style.overflow=previousOverflow;if(image.isConnected)image.focus();if(close===cleanup)close=()=>{};};close=cleanup;
+  modal.addEventListener('close',cleanup,{once:true});
+ }
+ image.addEventListener('click',event=>{event.preventDefault();open();},{signal});
+ image.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();open();}},{signal});
+ return ()=>{controller.abort();close();feedbackImage.destroy();image.classList.remove('image-zoomable');for(const [name,value] of Object.entries(previousAttributes))if(value===null)image.removeAttribute(name);else image.setAttribute(name,value);};
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@jsw-teams/media-viewer",
+  "version": "0.1.0",
+  "description": "Local, accessible image galleries and adaptive video players.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsw-teams/media-viewer.git"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./video": "./src/video.js",
+    "./image": "./src/image.js",
+    "./gallery": "./src/gallery.js",
+    "./lightbox": "./src/lightbox.js",
+    "./styles": "./src/styles.css",
+    "./image-styles": "./src/lightbox.css"
+  },
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "hls.js": "^1.7.3",
+    "plyr": "^3.8.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright": "^1.63.0"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE.md"
+  ]
+}

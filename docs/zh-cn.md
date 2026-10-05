@@ -1,0 +1,26 @@
+# 图片与视频浏览组件
+
+Media viewer 提供视频播放器、混合附件画廊和可关闭的图片放大查看器，使用 Plyr 与 hls.js。图片平时可以显示优化版本；点击后打开全屏查看器，这时才请求原图。原图保存放在查看器顶部工具栏，不覆盖图片画面。
+
+![手机播放器](player-mobile.png)
+
+手机进度条独立一行，播放、时间、静音、设置和全屏在下一行。图片支持滚轮／双指缩放、拖动、重置，叉号与 Escape 关闭后返回原页面。第三方图片也能接入；提供明确的原图地址，或直接放大当前图片，不猜测原站 URL。
+
+## 接入
+
+运行 `npm ci`、`npm run build`，用静态服务器打开 `/demo/`。构建生成 `dist/` 的 ES 模块与 CSS，可放在自己的站点并使用内容哈希缓存。打包工具可按主 README 从 GitHub 源码安装；目前没有发布 npm 包。
+
+- `mountVideo(video, {source, type})`：`source` 是返回视频地址的函数；HLS 用 `type: 'hls'`，浏览器支持的 MP4/WebM 用 `type: 'native'`。
+- `mountImage(image, {original, labels})`：`original` 是 URL 或返回 URL 的函数，只在打开查看器时求值。未提供时使用 `data-original` 或当前图片。
+- `watchImage(image, {labels})`：仅增加失败占位和手动重试，用于仍需要导航到详情页的图片卡片。
+- `mountGallery(root, {mountVideo, labels, onChange})`：结构参考演示，以 `<template>` 保存未选附件，注入动态导入的视频组件。`onChange({index,stage})` 可更新画面外的操作栏。
+
+组件返回清理函数，页面卸载或切换路由时调用。画廊切换时清理当前视频和图片查看器。视频仅点击播放后请求资源，暂停停止后续分片；自适应清晰度考虑网速和播放器尺寸，最多保留 2 倍显示密度。页面语言默认支持英文、简体、繁体中文，可用 `labels` 和播放器 `i18n` 覆盖或增加其他语言。
+
+图片优化、上传、鉴权、签名代理、封面生成和存储由接入应用负责。组件无平台账户、密钥或后端绑定。第三方图片直接由浏览器加载，不提供任意地址反代；已有 consent 服务仍需访客授权后才能接入，CSP 也需允许对应图片源。图标随 JS 本地打包，不依赖第三方 CDN；MSE 播放与取消用本地 `blob:`。
+
+## 验证与许可
+
+先运行 `npx playwright install chromium`，再运行 `npm test`。测试使用本地视频和模拟第三方图片，检查窄屏、播放、设置、键盘、全屏、切换、按需原图、关闭与失败重试，不会上传生产记录。
+
+组件采用 MIT，Plyr 与 hls.js 保留原许可，见 [NOTICE.md](../NOTICE.md)。

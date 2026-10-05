@@ -1,0 +1,10 @@
+export function playerLanguage(locale){
+ const simplified={play:'播放',pause:'暂停',restart:'重新播放',seek:'进度',seekLabel:'{currentTime} / {duration}',played:'已播放',buffered:'已缓冲',currentTime:'当前时间',duration:'时长',volume:'音量',mute:'静音',unmute:'取消静音',enableCaptions:'开启字幕',disableCaptions:'关闭字幕',enterFullscreen:'全屏',exitFullscreen:'退出全屏',settings:'设置',pip:'画中画',menuBack:'返回',speed:'播放速度',normal:'正常',quality:'清晰度',loop:'循环',start:'开始',end:'结束',all:'全部',reset:'重置',disabled:'关闭',enabled:'开启',captions:'字幕'};
+ if(/^zh-(TW|HK|Hant)/i.test(locale))return {...simplified,pause:'暫停',seek:'進度',buffered:'已緩衝',currentTime:'目前時間',duration:'時長',mute:'靜音',unmute:'取消靜音',enableCaptions:'開啟字幕',disableCaptions:'關閉字幕',enterFullscreen:'全螢幕',exitFullscreen:'退出全螢幕',settings:'設定',pip:'子母畫面',quality:'畫質',loop:'循環',start:'開始',end:'結束',reset:'重設',disabled:'關閉',enabled:'開啟'};
+ return /^zh/i.test(locale)?simplified:{};
+}
+export function imageLanguage(locale){
+ if(/^zh-(TW|HK|Hant)/i.test(locale))return {openImage:'放大圖片',closeImage:'關閉圖片',zoomIn:'放大',zoomOut:'縮小',resetZoom:'重設縮放',saveOriginal:'儲存原圖',retryMedia:'重新載入',loading:'載入中…',imageUnavailable:'圖片已刪除或暫時無法載入。',videoUnavailable:'影片已刪除或暫時無法播放。',videoUnsupported:'此瀏覽器不支援影片播放。',mediaMissing:'此附件已不存在。',previousAttachment:'上一個附件',nextAttachment:'下一個附件',attachments:'附件'};
+ if(/^zh/i.test(locale))return {openImage:'放大图片',closeImage:'关闭图片',zoomIn:'放大',zoomOut:'缩小',resetZoom:'重置缩放',saveOriginal:'保存原图',retryMedia:'重新加载',loading:'加载中…',imageUnavailable:'图片已删除或暂时无法加载。',videoUnavailable:'视频已删除或暂时无法播放。',videoUnsupported:'此浏览器不支持视频播放。',mediaMissing:'此附件已不存在。',previousAttachment:'上一个附件',nextAttachment:'下一个附件',attachments:'附件'};
+ return {openImage:'Enlarge image',closeImage:'Close image',zoomIn:'Zoom in',zoomOut:'Zoom out',resetZoom:'Reset zoom',saveOriginal:'Save original',retryMedia:'Retry loading',loading:'Loading…',imageUnavailable:'This image is unavailable.',videoUnavailable:'This video is unavailable.',videoUnsupported:'Video playback is not supported in this browser.',mediaMissing:'This attachment is no longer available.',previousAttachment:'Previous attachment',nextAttachment:'Next attachment',attachments:'Attachments'};
+}
