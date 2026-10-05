@@ -2,7 +2,7 @@
 
 Reusable image lightboxes, mixed galleries and adaptive video players built with Plyr and hls.js. The component runs entirely in the browser.
 
-- Modern mobile controls: full-width progress on its own row, visible current/total time, large click targets and working settings/fullscreen. Controls adapt to the player container.
+- Modern controls: full-width progress on its own row, adjacent current / total time, aligned seek and buffer tracks, large click targets and working settings/fullscreen. Controls adapt to the player container; actual metadata replaces the supplied duration on playback.
 - Video loads on play, adapts to bandwidth and player size, and stops requests on pause or disposal.
 - Click an optimized image to open a closable full-screen lightbox. Only then request its original.
 - Zoom, wheel/pinch, pan and reset; original saving lives in the lightbox toolbar, outside the picture.
