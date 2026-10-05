@@ -31,7 +31,7 @@
 .media-player.plyr .plyr__menu__container .plyr__control[role=menuitemradio]::after{left:auto;right:auto;inset-inline-start:17px}
 .media-player.plyr .plyr__menu__container .plyr__control--back{padding-inline-start:36px}
 .media-player.plyr .plyr__menu__container .plyr__control--forward{padding-inline-end:36px}
-.media-player.plyr .plyr__menu__container [role=menu]{max-height:min(360px,calc(100dvh - 160px));overflow-y:auto;overscroll-behavior:contain}
+.media-player.plyr .plyr__menu__container{max-height:var(--media-menu-height,min(360px,calc(100dvh - 160px)));overflow-y:auto;overscroll-behavior:contain}
 .media-player.plyr:fullscreen,.media-player.plyr.plyr--fullscreen-fallback{height:100%;max-height:none;aspect-ratio:auto;border-radius:0}
 .media-player.plyr:fullscreen .plyr__video-wrapper,.media-player.plyr.plyr--fullscreen-fallback .plyr__video-wrapper{height:100%;max-height:none;aspect-ratio:auto}
 .media-player.plyr:fullscreen video,.media-player.plyr.plyr--fullscreen-fallback video{height:100%;max-height:none}
