@@ -14,6 +14,7 @@ test('responsive controls remain clickable and images request originals only ins
    const types={'.js':'text/javascript','.css':'text/css','.webm':'video/webm','.svg':'image/svg+xml','.html':'text/html'};return route.fulfill({contentType:types[extname(url.pathname)]||'text/html',body:await readFile('.'+url.pathname)});
   });await page.goto('https://component.test/demo/index.html');await page.locator('.media-player').waitFor();assert.equal(videoCalls,0);assert.equal(originalCalls,0);
   assert.equal(await page.locator('.plyr__control--overlaid use').evaluate(use=>use.getBBox().width>0),true);
+  await page.locator('.plyr__control--overlaid').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>.1);await page.locator('video').evaluate(video=>video.pause());
   await page.locator('[data-plyr=mute]').click();assert.equal(await page.locator('video').evaluate(video=>video.muted),true);
   await page.locator('.media-player').focus();await page.keyboard.press('k');await page.waitForFunction(()=>document.querySelector('video').currentTime>.1);await page.keyboard.press('k');assert.equal(await page.locator('video').evaluate(video=>video.paused),true);assert.equal(videoCalls,1);
   await page.locator('[data-plyr=settings]').first().click();await page.locator('.plyr__menu__container:not([hidden])').waitFor();await page.keyboard.press('Escape');
