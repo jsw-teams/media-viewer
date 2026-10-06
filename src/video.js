@@ -42,7 +42,7 @@ export function mountVideo(video,{labels={},i18n=playerLanguage(document.documen
   }else if(video.canPlayType('application/vnd.apple.mpegurl'))video.src=source();
   else fail('videoUnsupported');
  }
- function resumeLoad(){if(hls&&!hls.loadingEnabled)hls.startLoad();}
+ function resumeLoad(position=-1){if(hls&&!hls.loadingEnabled)hls.startLoad(position);}
  function tunePlayback(){
   if(!hls)return;
   const rate=Math.max(1,Math.abs(video.playbackRate)||1),ahead=Math.min(90,30*rate);
@@ -55,6 +55,7 @@ export function mountVideo(video,{labels={},i18n=playerLanguage(document.documen
  container.addEventListener('keydown',event=>{if([' ','k','K'].includes(event.key)&&video.paused&&event.target.tagName!=='INPUT')prepare();},{capture:true,signal:controller.signal});
  video.addEventListener('play',()=>{wantsPlay=true;resumeLoad();},{signal:controller.signal});
  video.addEventListener('pause',()=>{wantsPlay=false;hls?.stopLoad();},{signal:controller.signal});
+ video.addEventListener('seeking',()=>{if(hls&&!disposed&&!failed)resumeLoad(video.currentTime);},{signal:controller.signal});
  const updateDuration=()=>{if(player.config.duration!==null&&Number.isFinite(video.duration)&&video.duration>0){player.config.duration=null;refreshDuration();}};
  video.addEventListener('durationchange',updateDuration,{signal:controller.signal});
  video.addEventListener('loadedmetadata',()=>{updateDuration();if(video.videoWidth&&video.videoHeight)container.style.setProperty('--media-aspect',video.videoWidth+'/'+video.videoHeight);},{signal:controller.signal});
