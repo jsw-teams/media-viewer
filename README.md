@@ -1,4 +1,4 @@
-# Media viewer
+# Multimedia viewer
 
 Reusable image lightboxes, mixed galleries and adaptive video players built with Plyr and hls.js. The component runs entirely in the browser.
 
