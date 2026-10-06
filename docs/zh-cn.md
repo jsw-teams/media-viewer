@@ -4,7 +4,7 @@ Media viewer 提供视频播放器、混合附件画廊和可关闭的图片放�
 
 ![手机播放器](player-mobile.png)
 
-![真实组件演示：倍速选择与列表滚动](player-controls.gif)
+![实际拖动进度、选择 2 倍速、切换附件与查看原图](media-experience-zh.gif)
 
 ![放大的倍速操作区](speed-menu-detail.png)
 

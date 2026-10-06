@@ -14,7 +14,7 @@ Reusable image lightboxes, mixed galleries and adaptive video players built with
 
 ![Mobile player](docs/player-mobile.png)
 
-![Real component demo: choosing playback speed and scrolling the options](docs/player-controls.gif)
+![Real seek, selected 2x playback, gallery switching and original-image inspection](docs/media-experience-en.gif)
 
 ![Enlarged playback speed controls](docs/speed-menu-detail.png)
 
