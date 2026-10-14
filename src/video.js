@@ -20,6 +20,8 @@ export function mountVideo(video,{labels={},i18n=playerLanguage(document.documen
  player.on('ready',refreshDuration);
  refreshDuration();
  container.classList.add('media-player');container.tabIndex=0;container.setAttribute('role','region');container.setAttribute('aria-label',video.getAttribute('aria-label')||'Video');
+ const width=Number(video.getAttribute('width')),height=Number(video.getAttribute('height'));
+ if(width>0&&height>0)container.style.setProperty('--media-aspect',width+'/'+height);
  const sizeMenu=()=>{const menu=container.querySelector('.plyr__menu');if(menu)container.style.setProperty('--media-menu-height',Math.max(128,Math.min(360,menu.getBoundingClientRect().top-container.getBoundingClientRect().top-12))+'px');};
  const menuSize=new ResizeObserver(sizeMenu);menuSize.observe(container);menuSize.observe(player.elements.controls);sizeMenu();
  const disposeMenu=mountSpeedMenu(player,i18n);

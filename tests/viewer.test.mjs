@@ -14,6 +14,17 @@ test('responsive controls remain clickable and images request originals only ins
    const types={'.js':'text/javascript','.css':'text/css','.webm':'video/webm','.svg':'image/svg+xml','.html':'text/html'};return route.fulfill({contentType:types[extname(url.pathname)]||'text/html',body:await readFile('.'+url.pathname)});
   });await page.goto('https://component.test/demo/index.html');await page.locator('.media-player').waitFor();assert.equal(videoCalls,0);assert.equal(originalCalls,0);
   assert.equal(await page.locator('.plyr__control--overlaid use').evaluate(use=>use.getBBox().width>0),true);
+  // A white host accent used to make the large play triangle white on white.
+  await page.addStyleTag({content:':root{--accent:#fff;--paper:#fff;--ink:#20242b}button{background:#fff;color:#20242b}'});
+  const overlay=page.locator('.plyr__control--overlaid');
+  await page.waitForFunction(()=>getComputedStyle(document.querySelector('.plyr__control--overlaid')).backgroundColor==='rgb(255, 255, 255)');
+  for(const hover of [false,true]){
+   if(hover)await overlay.hover();
+   assert.deepEqual(await overlay.evaluate(n=>({background:getComputedStyle(n).backgroundColor,icon:getComputedStyle(n.querySelector('svg')).fill})),{background:'rgb(255, 255, 255)',icon:'rgb(32, 36, 43)'});
+  }
+  assert.equal(await page.locator('.plyr__time--duration').textContent(),'01:59');
+  await page.waitForFunction(()=>document.querySelector('.media-player').classList.contains('plyr__poster-enabled'));
+  assert.equal(videoCalls,0,'Poster and duration must appear before video download');
   await page.locator('.plyr__control--overlaid').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>.1);await page.locator('video').evaluate(video=>video.pause());
   await page.locator('[data-plyr=mute]').click();assert.equal(await page.locator('video').evaluate(video=>video.muted),true);
   await page.locator('.media-player').focus();await page.keyboard.press('k');await page.waitForFunction(()=>document.querySelector('video').currentTime>.1);await page.keyboard.press('k');assert.equal(await page.locator('video').evaluate(video=>video.paused),true);assert.equal(videoCalls,1);
