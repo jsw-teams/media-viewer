@@ -1,6 +1,6 @@
 {
   "name": "@jsw-teams/media-viewer",
-  "version": "0.1.0",
+  "version": "2026.10.1",
   "description": "Local, accessible image galleries and adaptive video players.",
   "type": "module",
   "license": "MIT",
@@ -20,7 +20,8 @@
   "scripts": {
     "build": "node tools/build.mjs",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "icons:sync": "node tools/sync-image-icons.mjs"
+    "icons:sync": "node tools/sync-image-icons.mjs",
+    "audit": "node tools/audit-dependencies.mjs high"
   },
   "dependencies": {
     "hls.js": "^1.7.3",

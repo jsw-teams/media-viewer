@@ -27,7 +27,7 @@ These screenshots show the local component demo. The player uses a purple page a
 ## Build and try
 
 ```sh
-npm ci
+npm install
 npm run build
 npx serve .
 ```
@@ -72,3 +72,7 @@ npm test
 ```
 
 Tests use local media and mocked image responses, never production uploads. MIT for the component; [dependency licenses](NOTICE.md) remain applicable.
+
+Dependency maintenance: no tracked lockfiles. npm install resolves current compatible versions;
+daily Dependabot PRs advance declared minimums and daily security audits resolve a disposable tree.
+Audit snapshots are removed after the check. No automatic merge or production deployment.
