@@ -1,15 +1,22 @@
-// Keep Plyr's keyboard and speed selection; supply a themed scroll control.
-export function mountSpeedMenu(player,i18n){
- const popup=player.elements.settings.popup,scroll=popup.firstElementChild,events=new AbortController(),{signal}=events;
- scroll.classList.add('media-speed-scroll');const navigation=document.createElement('div');navigation.className='media-speed-navigation';navigation.setAttribute('role','group');navigation.setAttribute('aria-label',i18n.speed||'Playback speed');
- function button(label,down){const node=document.createElement('button');node.type='button';node.setAttribute('aria-label',label);node.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="'+(down?'m6 9 6 6 6-6':'m18 15-6-6-6 6')+'"/></svg>';node.addEventListener('click',()=>scroll.scrollBy({top:(down?1:-1)*Math.max(44,scroll.clientHeight*.6),behavior:'smooth'}),{signal});return node;}
- const up=button(i18n.menuScrollUp||'Scroll speed list up',false),down=button(i18n.menuScrollDown||'Scroll speed list down',true),range=document.createElement('input');range.type='range';range.min='0';range.step='1';range.setAttribute('aria-label',i18n.menuScrollPosition||'Speed list scroll position');range.addEventListener('input',()=>{scroll.scrollTop=Number(range.value);},{signal});range.addEventListener('keydown',event=>event.stopPropagation(),{signal});navigation.append(up,range,down);popup.append(navigation);
- let frame=0,pane=null;
- function update(){frame=0;if(popup.hidden)return;const visible=[...scroll.children].find(node=>!node.hidden),maximum=Math.max(0,scroll.scrollHeight-scroll.clientHeight);navigation.hidden=maximum<1;
-  if(visible!==pane){pane=visible;const selected=pane?.querySelector('[aria-checked=true]');if(selected)scroll.scrollTop+=selected.getBoundingClientRect().top-scroll.getBoundingClientRect().top-scroll.clientHeight/2+selected.clientHeight/2;}
-  range.max=String(maximum);range.value=String(scroll.scrollTop);up.disabled=scroll.scrollTop<1;down.disabled=scroll.scrollTop>=maximum-1;
- }
- const schedule=()=>{if(!frame)frame=requestAnimationFrame(update);};scroll.addEventListener('scroll',schedule,{signal});
- const changes=new MutationObserver(schedule);changes.observe(scroll,{attributes:true,subtree:true,attributeFilter:['hidden']});changes.observe(popup,{attributes:true,attributeFilter:['hidden']});const resize=new ResizeObserver(schedule);resize.observe(scroll);schedule();
- return ()=>{events.abort();changes.disconnect();resize.disconnect();cancelAnimationFrame(frame);navigation.remove();scroll.classList.remove('media-speed-scroll');};
+/** Accessible application-owned rate list; Video.js owns playback-rate state/actions. */
+export function mountSpeedMenu(controls,video,player,i18n){
+ const events=new AbortController(),{signal}=events,root=document.createElement('div');root.className='media-speed-menu';
+ const trigger=document.createElement('button');trigger.type='button';trigger.className='media-button';trigger.dataset.action='settings';trigger.setAttribute('aria-label',i18n.settings||'Settings');trigger.setAttribute('aria-haspopup','menu');trigger.setAttribute('aria-expanded','false');trigger.textContent='1×';
+ const popup=document.createElement('div');popup.className='media-speed-popup';popup.hidden=true;popup.setAttribute('role','menu');popup.setAttribute('aria-label',i18n.speed||'Playback speed');
+ const scroll=document.createElement('div');scroll.className='media-speed-scroll';scroll.setAttribute('role','group');scroll.setAttribute('aria-label',i18n.speed||'Playback speed');
+ const rates=[.25,.5,.75,1,1.25,1.5,1.75,2,2.5,3,3.5,4];
+ const options=rates.map(rate=>{const button=document.createElement('button');button.type='button';button.setAttribute('role','menuitemradio');button.setAttribute('aria-checked',String(video.playbackRate===rate));button.value=String(rate);const label=document.createElement('span');label.textContent=rate===1?(i18n.normal||'Normal'):rate+'×';button.append(label);button.addEventListener('click',()=>{player.store.setPlaybackRate(rate);refresh();},{signal});scroll.append(button);return button;});
+ const navigation=document.createElement('div');navigation.className='media-speed-navigation';navigation.setAttribute('role','group');navigation.setAttribute('aria-label',i18n.menuScrollPosition||'Speed list scroll position');
+ const button=(label,down)=>{const node=document.createElement('button');node.type='button';node.setAttribute('aria-label',label);node.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="'+(down?'m6 9 6 6 6-6':'m18 15-6-6-6 6')+'"/></svg>';node.addEventListener('click',()=>scroll.scrollBy({top:(down?1:-1)*Math.max(44,scroll.clientHeight*.6),behavior:'smooth'}),{signal});return node;};
+ const up=button(i18n.menuScrollUp||'Scroll speed list up',false),down=button(i18n.menuScrollDown||'Scroll speed list down',true),range=document.createElement('input');range.type='range';range.min='0';range.step='1';range.setAttribute('aria-label',i18n.menuScrollPosition||'Speed list scroll position');range.addEventListener('input',()=>{scroll.scrollTop=Number(range.value);},{signal});navigation.append(up,range,down);popup.append(scroll,navigation);root.append(trigger,popup);controls.append(root);
+ function refresh(){trigger.textContent=video.playbackRate+'×';for(const option of options)option.setAttribute('aria-checked',String(Number(option.value)===video.playbackRate));}
+ function update(){const max=Math.max(0,scroll.scrollHeight-scroll.clientHeight);navigation.hidden=max<1;range.max=String(max);range.value=String(scroll.scrollTop);up.disabled=scroll.scrollTop<1;down.disabled=scroll.scrollTop>=max-1;}
+ const size=()=>{const frame=controls.closest('media-container');root.style.setProperty('--media-menu-height',Math.max(96,Math.min(300,frame.clientHeight-controls.clientHeight-20))+'px');};
+ function open(){size();popup.hidden=false;trigger.setAttribute('aria-expanded','true');const selected=options.find(node=>node.getAttribute('aria-checked')==='true');selected?.scrollIntoView({block:'nearest'});requestAnimationFrame(update);}
+ function close(){popup.hidden=true;trigger.setAttribute('aria-expanded','false');trigger.focus();}
+ trigger.addEventListener('click',()=>popup.hidden?open():close(),{signal});
+ root.addEventListener('keydown',event=>{if(event.key==='Escape'&&!popup.hidden){event.preventDefault();event.stopPropagation();close();}else if(event.target.getAttribute('role')==='menuitemradio'&&['ArrowDown','ArrowUp','Home','End'].includes(event.key)){event.preventDefault();const index=options.indexOf(event.target),next=event.key==='Home'?0:event.key==='End'?options.length-1:Math.max(0,Math.min(options.length-1,index+(event.key==='ArrowDown'?1:-1)));options[next].focus();options[next].scrollIntoView({block:'nearest'});requestAnimationFrame(update);}},{signal});
+ scroll.addEventListener('scroll',update,{signal});video.addEventListener('ratechange',refresh,{signal});
+ const resize=new ResizeObserver(()=>{size();update();});resize.observe(controls);refresh();
+ return()=>{events.abort();resize.disconnect();root.remove();};
 }

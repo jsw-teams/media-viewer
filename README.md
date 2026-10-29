@@ -2,7 +2,7 @@
 
 Curious about improving this project? Vibe Coding and AI-assisted contributions are welcome, with no tool restrictions. Start with [Contributing](CONTRIBUTING.md), follow [AGENTS.md](AGENTS.md), and share a small, understandable change with reproducible tests. [Report a bug or idea](https://github.com/jsw-teams/media-viewer/issues/new/choose) · [Security](SECURITY.md) · [License](LICENSE).
 
-Reusable image lightboxes, mixed galleries and adaptive video players built with Plyr and hls.js. The component runs entirely in the browser.
+Reusable image lightboxes, mixed galleries and adaptive video players built with Video.js 10 HTML components and hls.js. The component runs entirely in the browser. The retired Plyr dependency, SVG sprite, styles and disposal shim have been removed.
 
 - Modern controls: full-width progress on its own row, adjacent current / total time, aligned seek and buffer tracks, large click targets and working settings/fullscreen. Controls adapt to the player container; actual metadata replaces the supplied duration on playback.
 - Video loads on play, starts with a small playable rendition and adapts to bandwidth, playback speed and player size. Bounded forward buffering grows with speed; pause and disposal stop new requests.
@@ -14,15 +14,9 @@ Reusable image lightboxes, mixed galleries and adaptive video players built with
 
 [中文说明](docs/zh-cn.md) | [Used by ishare](https://ishare.js.gripe)
 
-![Mobile player](docs/player-mobile.png)
+![Real VM capture: local Video.js 10 playback, selected 2x speed, scroll controls, gallery switching and original-image zoom](docs/media-videojs10.da5382978c5b7462.gif)
 
-![Real seek, selected 2x playback, gallery switching and original-image inspection](docs/media-experience-en.gif)
-
-![Enlarged playback speed controls](docs/speed-menu-detail.png)
-
-![Full-screen image viewer with controls outside the picture](docs/image-lightbox-mobile.png)
-
-These screenshots show the local component demo. The player uses a purple page accent; its controls also follow live light/dark theme changes.
+This GIF captures the actual isolated VM desktop and Chromium, using the local media fixture. Reproduce it with `tools/record-demo.mjs` and the EdgePress recording tools. Controls inherit the page's theme, including live light/dark changes.
 
 ## Build and try
 
@@ -37,7 +31,7 @@ Open `/demo/`. Serve the generated `dist/` files from your own origin. The demo 
 The package is distributed as GitHub source and has not been published to npm:
 
 ```sh
-npm install https://codeload.github.com/jsw-teams/media-viewer/tar.gz/main
+npm install 'git+https://github.com/jsw-teams/media-viewer.git#semver:^2026.10.2'
 ```
 
 Use these source exports with a bundler:
@@ -58,11 +52,11 @@ const disposeImage = mountImage(document.querySelector('img'), {
 
 Call the disposers before removing the elements. Videos use `playsinline`, `preload="none"` and a server-provided poster. Supply `data-duration` in seconds to show the known total before playback; actual metadata replaces it on play. `source` accepts a function; `original` accepts a URL or function and is evaluated on click. Without `original`, the lightbox uses `data-original`, then the currently displayed image. While loading the original, the dialog shows a loading status rather than an optimized preview.
 
-`watchImage(image, {labels})` adds error/retry feedback without opening a lightbox. `mountGallery(root, {mountVideo, labels, onChange})` consumes the markup in `demo/index.html` and `<template>` slides. Inject a lazy video mount function to avoid loading video JavaScript on image-only pages. `onChange({index,stage})` can update external application controls. Custom `labels` and Plyr `i18n` dictionaries extend or override translations.
+`watchImage(image, {labels})` adds error/retry feedback without opening a lightbox. `mountGallery(root, {mountVideo, labels, onChange})` consumes the markup in `demo/index.html` and `<template>` slides. Inject a lazy video mount function to avoid loading video JavaScript on image-only pages. `onChange({index,stage})` can update external application controls. Custom `labels` and application-control `i18n` strings override local wording; Video.js buttons use its native translations, bundled locally for English, Simplified Chinese and Traditional Chinese. Native Video.js translation overrides can be registered through `@videojs/html/i18n`.
 
 The player inherits the page's `--accent`, `--surface` (or `--paper`), `--ink`, `--bg` and `--line` CSS variables, including live light/dark theme changes. For another theme system, map its colors to `--media-accent`, `--media-surface`, `--media-ink` and `--media-accent-ink` on the player or an ancestor. These affect the playback accent, accent foreground and settings menu without recoloring the video itself. HLS uses hls.js when Media Source Extensions are supported, with native HLS as a fallback; explicit `type: 'native'` retains browser playback for MP4/WebM.
 
-Images retain your `srcset` and `sizes`. The component does not resize files, transcode media, authenticate users or implement uploads/storage/signing. Image viewing uses direct browser loading; initialize it only for content your visitor has authorized. CSP must permit the configured image/media hosts, local scripts/styles and playback `blob:`. Icons are bundled once per document, and cancellation uses a local Blob rather than an external blank-video host.
+Images retain your `srcset` and `sizes`. The component does not resize files, transcode media, authenticate users or implement uploads/storage/signing. Image viewing uses direct browser loading; initialize it only for content your visitor has authorized. CSP must permit the configured image/media hosts, local scripts/styles and playback `blob:`. Icons are local SVGs. Disposal destroys HLS, clears the native source and disconnects Video.js elements without requesting a replacement video.
 
 ## Test and license
 
@@ -74,7 +68,7 @@ npm test
 Tests use local media and mocked image responses, never production uploads. MIT for the component; [dependency licenses](NOTICE.md) remain applicable.
 
 Dependency maintenance: no tracked lockfiles. npm install resolves current compatible versions;
-weekly Dependabot PRs advance declared minimums and daily security audits resolve a disposable tree.
+weekly Dependabot PRs advance declared minimums and weekly security audits resolve a disposable tree.
 Audit snapshots are removed after the check. No automatic merge or production deployment.
 
 Weekly automatic dependency maintenance resolves compatible updates, audits and runs this project's regression suite with read-only access, then uses a separate job to commit verified manifest-only repairs. Failed checks or branch protection retain a repair PR; major upgrades are not forced. No lockfiles are retained. The existing package release process remains separate.

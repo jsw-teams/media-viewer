@@ -28,16 +28,16 @@ test('HLS starts on demand, follows live theme colors and sustains double-speed 
  try{
   const page=await browser.newPage({viewport:{width:390,height:844}});page.on('pageerror',error=>errors.push(error.message));page.on('requestfailed',request=>{if(request.url().startsWith('blob:')&&/NOT_FOUND/i.test(request.failure()?.errorText||''))errors.push('A revoked blob was requested');});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('.media-player').waitFor();assert.equal(transfers.length,0);
-  const theme=()=>page.evaluate(()=>{const root=document.querySelector('.plyr'),menu=root.querySelector('.plyr__menu__container');return {accent:getComputedStyle(root.querySelector('.plyr__control--overlaid')).backgroundColor,surface:getComputedStyle(menu).backgroundColor,ink:getComputedStyle(menu).color};});
+  const theme=()=>page.evaluate(()=>{const root=document.querySelector('.media-player'),menu=root.querySelector('.media-speed-popup');return {accent:getComputedStyle(root.querySelector('[data-action="play-large"]')).backgroundColor,surface:getComputedStyle(menu).backgroundColor,ink:getComputedStyle(menu).color};});
   await page.waitForTimeout(350);
   assert.deepEqual(await theme(),{accent:'rgb(250, 249, 255)',surface:'rgb(250, 249, 255)',ink:'rgb(32, 23, 44)'});
   await page.evaluate(()=>{const s=document.documentElement.style;s.setProperty('--accent','#367bd6');s.setProperty('--surface','#191b24');s.setProperty('--bg','#10121b');s.setProperty('--ink','#f0f2fa');});
   await page.waitForTimeout(350);
   assert.deepEqual(await theme(),{accent:'rgb(25, 27, 36)',surface:'rgb(25, 27, 36)',ink:'rgb(240, 242, 250)'});
   await page.locator('video').evaluate(v=>{window.samples=[];window.events=[];window.start=performance.now();for(const event of ['playing','waiting','ended'])v.addEventListener(event,()=>events.push({event,elapsed:performance.now()-start,current:v.currentTime}));window.timer=setInterval(()=>samples.push({time:performance.now()-start,current:v.currentTime,ahead:v.buffered.length?v.buffered.end(v.buffered.length-1)-v.currentTime:0}),200);});
-  await page.locator('.plyr__control--overlaid').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>8,{},{timeout:20000});
+  await page.locator('[data-action="play-large"]').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>8,{},{timeout:20000});
   assert.ok(await page.locator('video').evaluate(v=>v.getAttribute('src').startsWith('blob:')),'Use managed HLS when MSE is supported, including browsers that advertise native HLS');
-  const switched=Date.now();chunkSize=3500;await page.locator('video').evaluate(v=>{v.plyr.speed=2;});
+  const switched=Date.now();chunkSize=3500;await page.locator('video').evaluate(v=>{v.playbackRate=2;});
   await page.waitForFunction(()=>document.querySelector('video').currentTime>42,{},{timeout:25000});
   const metrics=await page.evaluate(()=>{clearInterval(timer);const v=document.querySelector('video');return {events,samples,current:v.currentTime,rate:v.playbackRate,width:v.videoWidth,height:v.videoHeight};});
   await mkdir('.artifacts',{recursive:true});await writeFile('.artifacts/playback.json',JSON.stringify({metrics,transfers,switched},null,2));
@@ -47,9 +47,9 @@ test('HLS starts on demand, follows live theme colors and sustains double-speed 
   assert.ok(transfers.some(x=>x.level===1&&x.kind==='.mp4'),'1x can select the detailed rendition');
   const later=transfers.filter(x=>x.time>switched+6000&&x.kind==='.mp4');assert.ok(later.length>0&&later.every(x=>x.level===0),'2x uses a sustainable bitrate: '+JSON.stringify(later));
   await page.locator('video').evaluate(v=>v.pause());await page.waitForTimeout(300);const paused=transfers.length;await page.waitForTimeout(1300);assert.equal(transfers.length,paused,'Pause stops new media requests');
-  const manifests=transfers.filter(x=>x.kind==='.m3u8').length;await page.locator('.plyr__controls [data-plyr=play]').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>46,{},{timeout:6000});
+  const manifests=transfers.filter(x=>x.kind==='.m3u8').length;await page.locator('[class="media-controls"] [data-action=play]').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>46,{},{timeout:6000});
   assert.equal(transfers.filter(x=>x.kind==='.m3u8').length,manifests,'Resume retains the current playback pipeline');
   await page.evaluate(()=>dispose());await page.waitForTimeout(300);const disposed=transfers.length;await page.waitForTimeout(1000);assert.equal(transfers.length,disposed);
-  await page.evaluate(async()=>{const {mountVideo}=await import('/dist/video.js');window.disposeAgain=mountVideo(document.querySelector('video'));});assert.equal(await page.locator('video').getAttribute('src'),null);await page.locator('.plyr__control--overlaid').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>.1,{},{timeout:15000});assert.ok(transfers.filter(x=>x.kind==='.m3u8').length>manifests,'Reopening creates a fresh playback pipeline');await page.evaluate(()=>disposeAgain());await page.waitForTimeout(500);assert.deepEqual(errors,[]);
+  await page.evaluate(async()=>{const {mountVideo}=await import('/dist/video.js');window.disposeAgain=mountVideo(document.querySelector('video'));});assert.equal(await page.locator('video').getAttribute('src'),null);await page.locator('[data-action="play-large"]').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>.1,{},{timeout:15000});assert.ok(transfers.filter(x=>x.kind==='.m3u8').length>manifests,'Reopening creates a fresh playback pipeline');await page.evaluate(()=>disposeAgain());await page.waitForTimeout(500);assert.deepEqual(errors,[]);
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
 });

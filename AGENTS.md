@@ -17,7 +17,7 @@ This explicit operator update supersedes older lockfile/pin instructions below.
 
 
 - Keep this a frontend component library. No accounts, uploads, backend adapters, provider IDs, API credentials or deployment bindings.
-- Vendor playback comes from Plyr and hls.js. Bundle their resources locally; no CDN, analytics or persistent storage by default.
+- Vendor playback uses Video.js 10 HTML controls and hls.js. Bundle their resources locally; no CDN, analytics or persistent storage by default. Preserve actual on-demand loading, speed-aware buffering, accessibility and disposal when updating these dependencies.
 - Load only the selected gallery attachment. Fetch video manifests and segments only after explicit play, stop requests on pause, dispose listeners and playback on navigation.
 - Image sources and lazy loading are supplied by the integrating app. Do not replace an explicit original with an optimized preview. The lightbox loads and displays only its requested original, including when the trigger image has not loaded yet. Its light glass UI has one close control outside the picture. Click/wheel/pinch zoom, drag pans, and keyboard +, -, 0 and arrows provide equivalent controls; native image saving remains available. All pictures follow the caller's consent and CSP without provider categories.
 - Support touch, focused keyboard control, visible loading/error states, English and both Chinese locales. Preserve native reduced-motion behavior without weakening ordinary feedback.

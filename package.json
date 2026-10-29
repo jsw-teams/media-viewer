@@ -1,6 +1,6 @@
 {
   "name": "@jsw-teams/media-viewer",
-  "version": "2026.10.1",
+  "version": "2026.10.2",
   "description": "Local, accessible image galleries and adaptive video players.",
   "type": "module",
   "license": "MIT",
@@ -24,8 +24,8 @@
     "audit": "node tools/audit-dependencies.mjs high"
   },
   "dependencies": {
-    "hls.js": "^1.7.3",
-    "plyr": "^3.8.5"
+    "@videojs/html": "^10.2.0",
+    "hls.js": "^1.7.3"
   },
   "devDependencies": {
     "axe-core": "^4.14.0",
