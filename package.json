@@ -30,7 +30,7 @@
   "devDependencies": {
     "axe-core": "^4.14.0",
     "esbuild": "^0.28.2",
-    "lucide-static": "^1.70.0",
+    "lucide-static": "^1.72.0",
     "playwright": "^1.65.0"
   },
   "files": [
